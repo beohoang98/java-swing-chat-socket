@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.hibernate.Session;
 
 public class App {
-
     ChatServer server;
     int conLimit = 16;
 
@@ -40,7 +39,7 @@ public class App {
 
     public void pingDatabase() {
         Session s = HBUtils.instance.open();
-        s.createQuery("SELECT 1");
+        s.createSQLQuery("SELECT 1").getSingleResult();
         s.close();
     }
 }

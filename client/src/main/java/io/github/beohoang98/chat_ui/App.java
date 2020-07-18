@@ -85,4 +85,8 @@ public class App {
         home.setVisible(true);
         register.dispose();
     }
+    
+    public static UserModel getUser() {
+        return user;
+    } 
 }

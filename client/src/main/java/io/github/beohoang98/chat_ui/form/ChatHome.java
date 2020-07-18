@@ -6,6 +6,7 @@
 package io.github.beohoang98.chat_ui.form;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
+import io.github.beohoang98.chat_ui.App;
 import javax.swing.UIManager;
 
 /**
@@ -19,6 +20,7 @@ public class ChatHome extends javax.swing.JFrame {
      */
     public ChatHome() {
         initComponents();
+        usernameField.setText(App.getUser().getUsername());
     }
 
     /**
@@ -29,20 +31,19 @@ public class ChatHome extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
-        jScrollPane2 = new javax.swing.JScrollPane();
         sidebar = new javax.swing.JPanel();
         accountSection = new javax.swing.JPanel();
         usernameLabel = new javax.swing.JLabel();
         usernameField = new javax.swing.JTextField();
-        onlinePane = new javax.swing.JPanel();
-        jScrollPane3 = new javax.swing.JScrollPane();
+        sidebarTabsWrapper = new javax.swing.JPanel();
+        sidebarTabs = new javax.swing.JTabbedPane();
+        conversationPanel = new javax.swing.JPanel();
+        onlinePanel = new javax.swing.JTabbedPane();
         main = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(1280, 720));
-        getContentPane().setLayout(new java.awt.GridBagLayout());
 
         sidebar.setBackground(javax.swing.UIManager.getDefaults().getColor("nb.output.selectionBackground"));
         sidebar.setPreferredSize(new java.awt.Dimension(300, 368));
@@ -63,15 +64,29 @@ public class ChatHome extends javax.swing.JFrame {
 
         sidebar.add(accountSection, java.awt.BorderLayout.NORTH);
 
-        onlinePane.setLayout(new java.awt.BorderLayout());
-        onlinePane.add(jScrollPane3, java.awt.BorderLayout.CENTER);
+        sidebarTabsWrapper.setLayout(new java.awt.BorderLayout());
 
-        sidebar.add(onlinePane, java.awt.BorderLayout.CENTER);
+        sidebarTabs.setToolTipText("");
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weighty = 1.0;
-        getContentPane().add(sidebar, gridBagConstraints);
+        javax.swing.GroupLayout conversationPanelLayout = new javax.swing.GroupLayout(conversationPanel);
+        conversationPanel.setLayout(conversationPanelLayout);
+        conversationPanelLayout.setHorizontalGroup(
+            conversationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 288, Short.MAX_VALUE)
+        );
+        conversationPanelLayout.setVerticalGroup(
+            conversationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 427, Short.MAX_VALUE)
+        );
+
+        sidebarTabs.addTab("Conversations", conversationPanel);
+        sidebarTabs.addTab("Online", onlinePanel);
+
+        sidebarTabsWrapper.add(sidebarTabs, java.awt.BorderLayout.CENTER);
+
+        sidebar.add(sidebarTabsWrapper, java.awt.BorderLayout.CENTER);
+
+        getContentPane().add(sidebar, java.awt.BorderLayout.WEST);
 
         javax.swing.GroupLayout mainLayout = new javax.swing.GroupLayout(main);
         main.setLayout(mainLayout);
@@ -84,7 +99,7 @@ public class ChatHome extends javax.swing.JFrame {
             .addGap(0, 537, Short.MAX_VALUE)
         );
 
-        getContentPane().add(main, new java.awt.GridBagConstraints());
+        getContentPane().add(main, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -113,11 +128,12 @@ public class ChatHome extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel accountSection;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JPanel conversationPanel;
     private javax.swing.JPanel main;
-    private javax.swing.JPanel onlinePane;
+    private javax.swing.JTabbedPane onlinePanel;
     private javax.swing.JPanel sidebar;
+    private javax.swing.JTabbedPane sidebarTabs;
+    private javax.swing.JPanel sidebarTabsWrapper;
     private javax.swing.JTextField usernameField;
     private javax.swing.JLabel usernameLabel;
     // End of variables declaration//GEN-END:variables

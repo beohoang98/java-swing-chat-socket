@@ -9,7 +9,10 @@ import com.google.gson.Gson;
 import io.github.beohoang98.chat_ui.App;
 import io.github.beohoang98.chat_ui.events.ErrorEvent;
 import io.github.beohoang98.chat_ui.events.LoginEvent;
+import io.github.beohoang98.chat_ui.events.MessageEvent;
+import io.github.beohoang98.chat_ui.events.OnlineUserEvent;
 import io.github.beohoang98.chat_ui.events.RegisterEvent;
+import io.github.beohoang98.chat_ui.models.MessageModel;
 import io.github.beohoang98.chat_ui.models.UserModel;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -17,6 +20,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
@@ -119,7 +124,14 @@ public class SocketService {
                 break;
             }
             case "MESSAGE": {
-                
+                MessageModel message = gson.fromJson(data, MessageModel.class);
+                App.eventBus.post(new MessageEvent(message));
+                break;
+            }
+            case "ONLINE": {
+                List<String> users = gson.fromJson(data, ArrayList.class);
+                App.eventBus.post(new OnlineUserEvent(users));
+                break;
             }
             case "ERROR": {
                 App.eventBus.post(new ErrorEvent(data));

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,11 +27,11 @@ public class ChatServer extends ServerSocket {
                                                       this);
             handler.setOnLoggedHandler((User user) -> {
                 clients.put(user.getUsername(), newClient);
-                this.emit("ONLINE", clients);
+                this.emit("ONLINE", new ArrayList<>(clients.keySet()));
             });
             handler.setOnClose((User user) -> {
                 clients.remove(user.getUsername());
-                this.emit("ONLINE", clients);
+                this.emit("ONLINE", new ArrayList<>(clients.keySet()));
             });
             
             Thread thread = new Thread(handler);

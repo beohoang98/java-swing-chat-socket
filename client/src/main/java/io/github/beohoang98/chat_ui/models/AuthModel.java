@@ -3,26 +3,23 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package io.github.beohoang98.chat_server.entities;
+package io.github.beohoang98.chat_ui.models;
 
 import java.io.Serializable;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
  *
  * @author noobcoder
  */
-@Entity
-@Table(name = "users")
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-public class UserEntity extends BaseEntity implements Serializable {
-
-    @Id
+public class AuthModel implements Serializable {
     String username;
     String password;
 }

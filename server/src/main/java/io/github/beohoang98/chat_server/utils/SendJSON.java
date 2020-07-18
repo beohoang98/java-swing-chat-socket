@@ -13,6 +13,7 @@ public class SendJSON {
     public void send(@NotNull PrintWriter writer, String command,
         Object data) {
         Gson gson = new Gson();
+        System.out.printf("%s - %s", command, data);
         String dataStr = gson.toJson(data);
         writer.println(command + " " + dataStr);
         writer.flush();

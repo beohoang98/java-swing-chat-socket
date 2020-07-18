@@ -1,8 +1,11 @@
 package io.github.beohoang98.chat_server;
 
+import io.github.beohoang98.chat_server.utils.HBUtils;
 import java.io.IOException;
+import org.hibernate.Session;
 
 public class App {
+
     ChatServer server;
     int conLimit = 16;
 
@@ -14,6 +17,7 @@ public class App {
     public void start(int port, String address) {
         Runtime.getRuntime().addShutdownHook(new ExitHandler());
         try {
+            this.pingDatabase();
             server = new ChatServer(port, conLimit, address);
             System.out.printf("Chat Server listen on %s:%d\n", address, port);
             server.start();
@@ -23,6 +27,7 @@ public class App {
     }
 
     public class ExitHandler extends Thread {
+
         @Override
         public void run() {
             try {
@@ -31,5 +36,11 @@ public class App {
                 ioException.printStackTrace();
             }
         }
+    }
+
+    public void pingDatabase() {
+        Session s = HBUtils.instance.open();
+        s.createQuery("SELECT 1");
+        s.close();
     }
 }

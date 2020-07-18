@@ -1,6 +1,7 @@
 package io.github.beohoang98.chat_server;
 
 import io.github.beohoang98.chat_server.handler.ClientHandler;
+import io.github.beohoang98.chat_server.models.User;
 import io.github.beohoang98.chat_server.utils.SendJSON;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -10,11 +11,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ChatServer extends ServerSocket {
-    public final Map<String, Socket> clients;
+    public final Map<String, Socket> clients = new ConcurrentHashMap<>();
 
     public ChatServer(int port, int conLimit, String address) throws IOException {
         super(port, conLimit, InetAddress.getByName(address));
-        clients = new ConcurrentHashMap<>();
     }
 
     public void start() throws IOException {
@@ -24,12 +24,12 @@ public class ChatServer extends ServerSocket {
                 .getInetAddress(), newClient.getPort());
             ClientHandler handler = new ClientHandler(newClient,
                                                       this);
-            handler.setOnLoggedHandler(user -> {
-                clients.put(user.username, newClient);
+            handler.setOnLoggedHandler((User user) -> {
+                clients.put(user.getUsername(), newClient);
                 this.emit("ONLINE", clients);
             });
-            handler.setOnClose((user) -> {
-                clients.remove(user.username);
+            handler.setOnClose((User user) -> {
+                clients.remove(user.getUsername());
                 this.emit("ONLINE", clients);
             });
             

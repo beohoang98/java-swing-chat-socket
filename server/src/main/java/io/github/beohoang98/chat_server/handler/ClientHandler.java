@@ -3,10 +3,11 @@ package io.github.beohoang98.chat_server.handler;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import io.github.beohoang98.chat_server.ChatServer;
+import io.github.beohoang98.chat_server.entities.MessageEntity;
 import io.github.beohoang98.chat_server.models.Auth;
 import io.github.beohoang98.chat_server.models.InputMessage;
-import io.github.beohoang98.chat_server.models.Message;
 import io.github.beohoang98.chat_server.models.User;
+import io.github.beohoang98.chat_server.service.MessageService;
 import io.github.beohoang98.chat_server.service.UserService;
 import io.github.beohoang98.chat_server.utils.SendJSON;
 import java.io.BufferedReader;
@@ -14,10 +15,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.sql.Timestamp;
+import java.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
 public class ClientHandler implements Runnable {
+
+    static Logger logger = Logger.getLogger(ClientHandler.class.getName());
 
     final Socket socket;
     final ChatServer server;
@@ -33,21 +36,20 @@ public class ClientHandler implements Runnable {
         final ChatServer server) throws IOException {
         this.socket = socket;
         this.isAuthorized = false;
-        reader = new BufferedReader(
-            new InputStreamReader(socket.getInputStream())
-        );
+        reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
         writer = new PrintWriter(socket.getOutputStream());
         this.server = server;
     }
 
     @Override
     public void run() {
-        while (socket.isConnected()) {
+        while (socket.isConnected() && !socket.isClosed()) {
             try {
                 String line = reader.readLine();
                 if (line == null) {
                     continue;
                 }
+                logger.info(line);
                 String[] split = line.split(" ");
                 if (split.length < 2) {
                     SendJSON.ins.send(writer, "ERROR", "Missing data");
@@ -59,17 +61,21 @@ public class ClientHandler implements Runnable {
                     handleInput(command, dataStr);
                 }
             } catch (IOException ioException) {
-                ioException.printStackTrace();
+                logger.severe(ioException.getMessage());
+                break;
             } catch (Exception e) {
-                SendJSON.ins.send(writer, "ERROR", "json invalid: " + e.getMessage());
+                SendJSON.ins.send(writer, "ERROR", e.getMessage());
             }
         }
         try {
-            socket.close();
+            if (!socket.isClosed()) {
+                socket.close();
+            }
             if (onClose != null) {
                 onClose.onClose(user);
             }
         } catch (IOException ioException) {
+            logger.severe(ioException.getMessage());
             ioException.printStackTrace();
         }
     }
@@ -91,7 +97,8 @@ public class ClientHandler implements Runnable {
             }
             case "LOGIN": {
                 Auth auth = gson.fromJson(dataStr, Auth.class);
-                if (UserService.instance.checkUser(auth.username, auth.password)) {
+                String checkUser = UserService.instance.checkUser(auth.username, auth.password);
+                if (checkUser == null) {
                     isAuthorized = true;
                     user = new User(auth.username);
                     SendJSON.ins.send(writer, "LOGGED", user);
@@ -100,24 +107,24 @@ public class ClientHandler implements Runnable {
                     }
                     return;
                 } else {
-                    throw new Exception("Login failed");
+                    throw new Exception(checkUser);
                 }
             }
             case "MESSAGE": {
-                InputMessage message = gson
+                InputMessage inputMessage = gson
                     .fromJson(dataStr, InputMessage.class);
-                Message sendMessage = new Message(message);
-                sendMessage.owner = user;
-                sendMessage.createdAt = new Timestamp(System
-                    .currentTimeMillis());
+                MessageEntity message = MessageService.instance.create(inputMessage, user);
 
-                Socket toSocket = server.getClient(message.toUser.username);
-                SendJSON.ins.send(toSocket, "MESSAGE", sendMessage);
-                SendJSON.ins.send(writer, "MESSAGE_SENT", sendMessage);
+                Socket toSocket = server.getClient(message.getToUsername());
+                SendJSON.ins.send(toSocket, "MESSAGE", message);
+                SendJSON.ins.send(writer, "MESSAGE_SENT", message);
+                return;
+            }
+            case "UPLOAD": {
                 return;
             }
             default: {
-                SendJSON.ins.send(writer, "ERROR", "Unknown command");
+                SendJSON.ins.send(writer, "ERROR", "Unknown command: " + command);
                 return;
             }
         }

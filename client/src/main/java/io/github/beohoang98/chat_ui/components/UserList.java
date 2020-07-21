@@ -33,7 +33,9 @@ public class UserList extends JList<String> implements AncestorListener {
     @Subscribe
     public void updateUsers(OnlineUserEvent event) {
         model.clear();
-        model.addAll(event.getUsers());
+        for (String username : event.getUsers()) {
+            model.addElement(username);
+        }
     }
 
     public static class UserCellRenderer implements ListCellRenderer<String> {

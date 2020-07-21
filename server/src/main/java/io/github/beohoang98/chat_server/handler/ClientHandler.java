@@ -16,6 +16,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 
 public class ClientHandler implements Runnable {
@@ -49,20 +51,19 @@ public class ClientHandler implements Runnable {
                 if (line == null) {
                     continue;
                 }
-                logger.info(line);
-                String[] split = line.split(" ");
-                if (split.length < 2) {
+                Pattern pattern = Pattern.compile("([\\w-]+)\\s?(.*)?", Pattern.UNICODE_CASE);
+                Matcher m = pattern.matcher(line);
+                if (!m.find()) {
                     SendJSON.ins.send(writer, "ERROR", "Missing data");
-                } else if (split.length > 2) {
+                } else if (m.groupCount() > 3) {
                     SendJSON.ins.send(writer, "ERROR", "Over data");
                 } else {
-                    String command = split[0];
-                    String dataStr = split[1];
+                    String command = m.group(1);
+                    String dataStr = m.group(2);
                     handleInput(command, dataStr);
                 }
             } catch (IOException ioException) {
                 logger.severe(ioException.getMessage());
-                break;
             } catch (Exception e) {
                 SendJSON.ins.send(writer, "ERROR", e.getMessage());
             }

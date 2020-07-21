@@ -4,16 +4,19 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
 public class SendJSON {
 
     public static SendJSON ins = new SendJSON();
 
+    public Logger logger = Logger.getGlobal();
+
     public void send(@NotNull PrintWriter writer, String command,
         Object data) {
         Gson gson = new Gson();
-        System.out.printf("%s - %s", command, data);
+        logger.fine(String.format("%s - %s", command, data));
         String dataStr = gson.toJson(data);
         writer.println(command + " " + dataStr);
         writer.flush();

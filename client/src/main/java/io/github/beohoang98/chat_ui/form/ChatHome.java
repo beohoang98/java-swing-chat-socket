@@ -7,6 +7,9 @@ package io.github.beohoang98.chat_ui.form;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
 import io.github.beohoang98.chat_ui.App;
+import io.github.beohoang98.chat_ui.components.ConversationList;
+import io.github.beohoang98.chat_ui.components.UserList;
+import java.awt.BorderLayout;
 import javax.swing.UIManager;
 
 /**
@@ -68,6 +71,9 @@ public class ChatHome extends javax.swing.JFrame {
 
         sidebarTabs.setToolTipText("");
 
+        conversationPanel.setLayout(new BorderLayout());
+        conversationPanel.add(new ConversationList(), BorderLayout.CENTER);
+
         javax.swing.GroupLayout conversationPanelLayout = new javax.swing.GroupLayout(conversationPanel);
         conversationPanel.setLayout(conversationPanelLayout);
         conversationPanelLayout.setHorizontalGroup(
@@ -80,6 +86,10 @@ public class ChatHome extends javax.swing.JFrame {
         );
 
         sidebarTabs.addTab("Conversations", conversationPanel);
+
+        onlinePanel.setLayout(new BorderLayout());
+        onlinePanel.add(new UserList(), BorderLayout.CENTER);
+
         sidebarTabs.addTab("Online", onlinePanel);
 
         sidebarTabsWrapper.add(sidebarTabs, java.awt.BorderLayout.CENTER);

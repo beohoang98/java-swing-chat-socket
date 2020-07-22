@@ -15,6 +15,8 @@ import io.github.beohoang98.chat_ui.form.Auth;
 import io.github.beohoang98.chat_ui.form.ChatHome;
 import io.github.beohoang98.chat_ui.form.Register;
 import io.github.beohoang98.chat_ui.models.UserModel;
+import io.github.beohoang98.chat_ui.store.MessagesStore;
+import io.github.beohoang98.chat_ui.store.OnlineUsersStore;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -36,6 +38,9 @@ public class App {
 
     public App() throws Exception {
         eventBus.register(this);
+        OnlineUsersStore.instance.register();
+        MessagesStore.instance.register();
+        
         auth = new Auth();
         auth.setVisible(true);
     }

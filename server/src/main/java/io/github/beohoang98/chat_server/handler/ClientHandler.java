@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -119,6 +121,11 @@ public class ClientHandler implements Runnable {
                 Socket toSocket = server.getClient(message.getToUsername());
                 SendJSON.ins.send(toSocket, "MESSAGE", message);
                 SendJSON.ins.send(writer, "MESSAGE_SENT", message);
+                return;
+            }
+            case "GET_ONLINE": {
+                List<String> clients = new ArrayList<>(server.clients.keySet());
+                server.emit("ONLINE", clients);
                 return;
             }
             case "UPLOAD": {

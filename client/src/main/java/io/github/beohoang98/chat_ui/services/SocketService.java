@@ -81,11 +81,12 @@ public class SocketService {
 
     public void send(String event, Object data) throws IOException {
         Gson gson = new Gson();
+        System.out.println("SEND: " + event + " " + data);
         if (dataOutputStream != null) {
             dataOutputStream.println(event + " " + gson.toJson(data));
             dataOutputStream.flush();
         } else {
-            Logger.getLogger(SocketService.class.getName()).warning("Not connected yet");
+            System.err.println("Not connected yet");
         }
     }
 
@@ -101,7 +102,9 @@ public class SocketService {
                 String line = inputStream.nextLine();
                 Pattern pattern = Pattern.compile("([\\w-]+)\\s?(.*)?", Pattern.UNICODE_CASE);
                 Matcher m = pattern.matcher(line);
-                if (!m.find()) continue;
+                if (!m.find()) {
+                    continue;
+                }
                 String event = m.group(1);
                 String data = m.groupCount() > 1 ? m.group(2) : null;
                 handleData(event, data);
@@ -141,6 +144,7 @@ public class SocketService {
     }
 
     public interface EventCallback<T> {
+
         void onNext(T data);
     }
 

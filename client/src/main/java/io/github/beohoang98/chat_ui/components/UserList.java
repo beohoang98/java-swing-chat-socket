@@ -7,8 +7,13 @@ package io.github.beohoang98.chat_ui.components;
 
 import com.google.common.eventbus.Subscribe;
 import io.github.beohoang98.chat_ui.App;
+import io.github.beohoang98.chat_ui.events.ChatChooseUserEvent;
 import io.github.beohoang98.chat_ui.events.OnlineUserEvent;
+import io.github.beohoang98.chat_ui.services.SocketService;
 import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -28,10 +33,12 @@ public class UserList extends JList<String> implements AncestorListener {
         super();
         setCellRenderer(new UserCellRenderer());
         setModel(model);
+        addAncestorListener(this);
     }
 
     @Subscribe
     public void updateUsers(OnlineUserEvent event) {
+        System.out.println(event);
         model.clear();
         for (String username : event.getUsers()) {
             model.addElement(username);
@@ -52,6 +59,11 @@ public class UserList extends JList<String> implements AncestorListener {
     @Override
     public void ancestorAdded(AncestorEvent ae) {
         App.eventBus.register(this);
+        try {
+            SocketService.instance.send("GET_ONLINE", "_");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -61,5 +73,19 @@ public class UserList extends JList<String> implements AncestorListener {
 
     @Override
     public void ancestorMoved(AncestorEvent ae) {
+    }
+    
+    public class ClickHandler extends MouseAdapter {
+
+        @Override
+        public void mouseClicked(MouseEvent me) {
+            int index = UserList.this.getSelectedIndex();
+            if (index < 0) return;
+            
+            String username = model.elementAt(index);
+            if (username == null) return;
+            
+            App.eventBus.post(new ChatChooseUserEvent(username));
+        }
     }
 }

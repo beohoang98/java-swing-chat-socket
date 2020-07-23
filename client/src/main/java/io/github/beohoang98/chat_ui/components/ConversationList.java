@@ -26,16 +26,16 @@ import javax.swing.event.AncestorListener;
  * @author noobcoder
  */
 public class ConversationList extends JList<MessageModel> implements AncestorListener {
-    
+
     DefaultListModel<MessageModel> model;
-    
+
     public ConversationList() {
         super();
         this.setCellRenderer(new MessageListRenderer());
         model = new DefaultListModel<>();
         setModel(model);
     }
-    
+
     @Subscribe
     public void updateConversationList(ConversationListEvent event) {
         model.clear();
@@ -43,42 +43,42 @@ public class ConversationList extends JList<MessageModel> implements AncestorLis
             model.addElement(msg);
         }
     }
-    
+
     static class MessageListRenderer implements ListCellRenderer<MessageModel> {
-        
+
         @Override
         public Component getListCellRendererComponent(JList<? extends MessageModel> list, MessageModel message, int i, boolean bln, boolean bln1) {
             JPanel panel = new JPanel();
             panel.setLayout(new BorderLayout());
             panel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-            
-            String username = App.getUser().getUsername().equals(message.getOwner().getUsername())
-                ? message.getToUser().getUsername()
-                : message.getOwner().getUsername();
+
+            String username = App.getUser().getUsername().equals(message.getOwnerUsername())
+                ? message.getToUsername()
+                : message.getOwnerUsername();
             JLabel usernameLabel = new JLabel(username);
             usernameLabel.setFont(usernameLabel.getFont().deriveFont(Font.BOLD, 18f));
-            
+
             JLabel messageLabel = new JLabel(message.getContent().substring(0, 50));
-            
+
             panel.add(usernameLabel, BorderLayout.NORTH);
             panel.add(messageLabel, BorderLayout.CENTER);
-            
+
             return panel;
         }
     }
-    
+
     @Override
     public void ancestorAdded(AncestorEvent ae) {
         App.eventBus.register(this);
     }
-    
+
     @Override
     public void ancestorRemoved(AncestorEvent ae) {
         App.eventBus.unregister(this);
     }
-    
+
     @Override
     public void ancestorMoved(AncestorEvent ae) {
     }
-    
+
 }

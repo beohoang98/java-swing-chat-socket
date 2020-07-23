@@ -1,7 +1,9 @@
 package io.github.beohoang98.chat_ui.models;
 
+import java.sql.Timestamp;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /*
@@ -14,13 +16,20 @@ import lombok.Setter;
  * @author noobcoder
  */
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
-@Setter
 public class MessageModel {
 
     String id;
+
+    @Setter
     String content;
     String filePath;
-    UserModel owner;
-    UserModel toUser;
+    String ownerUsername;
+
+    @Setter
+    String toUsername;
+    
+    Timestamp createdAt;
+    Timestamp updatedAt;
 }

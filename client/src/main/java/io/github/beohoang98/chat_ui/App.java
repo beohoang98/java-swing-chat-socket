@@ -61,13 +61,17 @@ public class App {
             }
         });
     }
+    
+    void showHome() {
+        auth.dispose();
+        home = new ChatHome();
+        home.setVisible(true);
+    }
 
     @Subscribe
     void onLogin(LoginEvent loginEvent) {
         user = loginEvent.getUser();
-        home = new ChatHome();
-        home.setVisible(true);
-        auth.dispose();
+        showHome();
     }
     
     @Subscribe
@@ -86,9 +90,7 @@ public class App {
     @Subscribe
     void onRegister(RegisterEvent registerEvent) {
         user = registerEvent.getUser();
-        home = new ChatHome();
-        home.setVisible(true);
-        register.dispose();
+        showHome();
     }
     
     public static UserModel getUser() {

@@ -5,6 +5,7 @@ import com.google.gson.JsonSyntaxException;
 import io.github.beohoang98.chat_server.ChatServer;
 import io.github.beohoang98.chat_server.entities.MessageEntity;
 import io.github.beohoang98.chat_server.models.Auth;
+import io.github.beohoang98.chat_server.models.GetMessageResponse;
 import io.github.beohoang98.chat_server.models.InputMessage;
 import io.github.beohoang98.chat_server.models.User;
 import io.github.beohoang98.chat_server.service.MessageService;
@@ -17,14 +18,15 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 public class ClientHandler implements Runnable {
 
-    static Logger logger = Logger.getLogger(ClientHandler.class.getName());
+    static Logger logger = LogManager.getRootLogger();
 
     final Socket socket;
     final ChatServer server;
@@ -47,7 +49,7 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        while (socket.isConnected() && !socket.isClosed()) {
+        while (!socket.isClosed() && socket.isConnected()) {
             try {
                 String line = reader.readLine();
                 if (line == null) {
@@ -65,12 +67,13 @@ public class ClientHandler implements Runnable {
                     handleInput(command, dataStr);
                 }
             } catch (IOException ioException) {
-                logger.severe(ioException.getMessage());
+                logger.error(ioException.getMessage());
             } catch (Exception e) {
                 SendJSON.ins.send(writer, "ERROR", e.getMessage());
             }
         }
         try {
+            logger.info("Close client " + socket.getInetAddress().toString());
             if (!socket.isClosed()) {
                 socket.close();
             }
@@ -78,7 +81,7 @@ public class ClientHandler implements Runnable {
                 onClose.onClose(user);
             }
         } catch (IOException ioException) {
-            logger.severe(ioException.getMessage());
+            logger.error(ioException.getMessage());
             ioException.printStackTrace();
         }
     }
@@ -120,8 +123,15 @@ public class ClientHandler implements Runnable {
 
                 Socket toSocket = server.getClient(message.getToUsername());
                 SendJSON.ins.send(toSocket, "MESSAGE", message);
-                SendJSON.ins.send(writer, "MESSAGE_SENT", message);
+                if (!inputMessage.getToUsername().equals(user.getUsername())) {
+                    SendJSON.ins.send(writer, "MESSAGE", message);
+                }
                 return;
+            }
+            case "GET_MESSAGE": {
+                String toUsername = dataStr;
+                List<MessageEntity> msgList = MessageService.instance.list(user.getUsername(), toUsername);
+                SendJSON.ins.send(writer, "MESSAGE_LIST", new GetMessageResponse(toUsername, msgList));
             }
             case "GET_ONLINE": {
                 List<String> clients = new ArrayList<>(server.clients.keySet());

@@ -5,7 +5,7 @@
  */
 package io.github.beohoang98.chat_server.entities;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -24,9 +24,9 @@ public class BaseEntity {
 
     @CreationTimestamp
     @Column(name = "created_at")
-    Date createdAt;
+    Timestamp createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    Date updatedAt;
+    Timestamp updatedAt;
 }

@@ -13,10 +13,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 /**
  *
@@ -26,17 +28,19 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "messages")
+@Entity
+@Table(name = "messages")
 public class MessageEntity extends BaseEntity implements Serializable {
 
     @Id
-    @GeneratedValue
-    @Column(columnDefinition = "uuid", unique = false)
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid2")
+    @Column(unique = true)
     String id;
 
     String content;
 
-    @Column(columnDefinition = "file_path", nullable = true)
+    @Column(name = "file_path", nullable = true)
     String filePath;
 
     @Column(name = "owner_username", nullable = false)

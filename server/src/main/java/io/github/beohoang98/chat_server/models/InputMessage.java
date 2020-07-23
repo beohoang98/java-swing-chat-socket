@@ -9,6 +9,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class InputMessage implements Serializable {
-    public String content;
-    public User toUser;
+    String content;
+    String toUsername;
 }

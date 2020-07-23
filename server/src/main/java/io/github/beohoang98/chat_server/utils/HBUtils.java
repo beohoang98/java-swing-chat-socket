@@ -5,6 +5,7 @@
  */
 package io.github.beohoang98.chat_server.utils;
 
+import io.github.beohoang98.chat_server.entities.MessageEntity;
 import io.github.beohoang98.chat_server.entities.UserEntity;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -17,11 +18,11 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
  * @author noobcoder
  */
 public class HBUtils {
-
+    
     public static HBUtils instance = new HBUtils();
-
+    
     SessionFactory sessionFactory;
-
+    
     public HBUtils() {
         StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
             .loadProperties("hibernate.properties")
@@ -29,9 +30,10 @@ public class HBUtils {
             .build();
         sessionFactory = new MetadataSources(registry)
             .addAnnotatedClass(UserEntity.class)
+            .addAnnotatedClass(MessageEntity.class)
             .buildMetadata().buildSessionFactory();
     }
-
+    
     public Session open() {
         return sessionFactory.openSession();
     }

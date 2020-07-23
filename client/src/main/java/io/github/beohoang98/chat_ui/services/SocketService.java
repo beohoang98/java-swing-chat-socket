@@ -8,6 +8,7 @@ package io.github.beohoang98.chat_ui.services;
 import com.google.gson.Gson;
 import io.github.beohoang98.chat_ui.App;
 import io.github.beohoang98.chat_ui.events.ErrorEvent;
+import io.github.beohoang98.chat_ui.events.GetMessageResponseEvent;
 import io.github.beohoang98.chat_ui.events.LoginEvent;
 import io.github.beohoang98.chat_ui.events.MessageEvent;
 import io.github.beohoang98.chat_ui.events.OnlineUserEvent;
@@ -129,6 +130,11 @@ public class SocketService {
             case "MESSAGE": {
                 MessageModel message = gson.fromJson(data, MessageModel.class);
                 App.eventBus.post(new MessageEvent(message));
+                break;
+            }
+            case "MESSAGE_LIST": {
+                GetMessageResponseEvent resEvent = gson.fromJson(data, GetMessageResponseEvent.class);
+                App.eventBus.post(resEvent);
                 break;
             }
             case "ONLINE": {

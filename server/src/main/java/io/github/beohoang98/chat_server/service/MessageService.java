@@ -10,6 +10,8 @@ import io.github.beohoang98.chat_server.models.InputMessage;
 import io.github.beohoang98.chat_server.models.User;
 import io.github.beohoang98.chat_server.utils.HBUtils;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 public class MessageService {
 
     public static final MessageService instance = new MessageService();
+    Logger logger = LogManager.getRootLogger();
 
     @NotNull
     public MessageEntity create(@NotNull InputMessage inputMessage, @NotNull User user) {
@@ -29,7 +32,7 @@ public class MessageService {
         try {
             MessageEntity messageEntity = new MessageEntity();
             messageEntity.setContent(inputMessage.getContent());
-            messageEntity.setToUsername(inputMessage.getToUser().getUsername());
+            messageEntity.setToUsername(inputMessage.getToUsername());
             messageEntity.setOwnerUsername(user.getUsername());
             session.save(messageEntity);
             t.commit();
@@ -42,17 +45,21 @@ public class MessageService {
     }
 
     public List<MessageEntity> list(String fromUsername, String toUsername, int from, int limit) {
+        logger.debug("List Messages " + fromUsername + " and " + toUsername);
         try (Session session = HBUtils.instance.open()) {
             return session.createQuery("FROM "
                 + MessageEntity.class.getSimpleName()
                 + " WHERE ((owner_username = :fromUsername AND to_username = :toUsername)"
                 + " OR (owner_username = :toUsername AND to_username = :fromUsername))"
-                + " ORDER BY created_at DESC")
+                + " ORDER BY created_at DESC", MessageEntity.class)
                 .setParameter("fromUsername", fromUsername)
                 .setParameter("toUsername", toUsername)
                 .setFirstResult(from)
                 .setMaxResults(limit)
                 .getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 

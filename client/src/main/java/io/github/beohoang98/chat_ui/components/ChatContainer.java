@@ -8,16 +8,24 @@ package io.github.beohoang98.chat_ui.components;
 import com.google.common.eventbus.Subscribe;
 import io.github.beohoang98.chat_ui.App;
 import io.github.beohoang98.chat_ui.events.ChatChooseUserEvent;
+import io.github.beohoang98.chat_ui.events.MessageEvent;
+import io.github.beohoang98.chat_ui.events.MessageListLoadedEvent;
+import io.github.beohoang98.chat_ui.models.MessageModel;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  *
  * @author noobcoder
  */
 public class ChatContainer extends javax.swing.JPanel {
-    Map<String, Integer> tabIndex = new HashMap<>();
-    
+
+    List<String> tabIndex = new ArrayList<>();
+    Map<String, ChatContent> mapComponent = new HashMap<>();
+
     /**
      * Creates new form ChatContainer
      */
@@ -47,6 +55,12 @@ public class ChatContainer extends javax.swing.JPanel {
             }
         });
         setLayout(new java.awt.BorderLayout());
+
+        tabs.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                tabsStateChanged(evt);
+            }
+        });
         add(tabs, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -58,15 +72,72 @@ public class ChatContainer extends javax.swing.JPanel {
         App.eventBus.unregister(this);
     }//GEN-LAST:event_formAncestorRemoved
 
+    private void tabsStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_tabsStateChanged
+        ClosableTab tab = (ClosableTab) tabs.getTabComponentAt(tabs.getSelectedIndex());
+        tab.setHighlight(false);
+    }//GEN-LAST:event_tabsStateChanged
+
     @Subscribe
-    void onChooseUserChat(ChatChooseUserEvent event) {
-        if (tabIndex.containsKey(event.getUsername())) {
-            tabs.setSelectedIndex(tabIndex.get(event.getUsername()));
+    void onMessage(MessageEvent event) {
+        MessageModel msg = event.getMessage();
+        String other = msg.getOwnerUsername().equals(App.getUser().getUsername())
+            ? msg.getToUsername()
+            : msg.getOwnerUsername();
+
+        if (mapComponent.containsKey(other)) {
+            mapComponent.get(other).addMessage(msg);
+        }
+        int index = tabIndex.indexOf(other);
+        if (index >= 0) {
+            ((ClosableTab) tabs.getTabComponentAt(index)).setHighlight(true);
         } else {
-            
+            addTabChat(other);
         }
     }
-    
+
+    @Subscribe
+    void onMessageListLoaded(MessageListLoadedEvent event) {
+        if (mapComponent.containsKey(event.getUsername())) {
+            mapComponent.get(event.getUsername())
+                .reload();
+        }
+    }
+
+    @Subscribe
+    void onChooseUserChat(ChatChooseUserEvent event) {
+        String username = event.getUsername();
+        System.out.println("Switch to " + username);
+        int existIndex = tabIndex.indexOf(username);
+
+        if (existIndex >= 0) {
+            tabs.setSelectedIndex(existIndex);
+        } else {
+            addTabChat(username);
+        }
+    }
+
+    void addTabChat(final String username) {
+        ChatContent chatContent = new ChatContent(username);
+        mapComponent.put(username, chatContent);
+        tabs.addTab(username, chatContent);
+        tabIndex.add(username);
+
+        final int newIndex = tabIndex.size() - 1;
+        ClosableTab tab = new ClosableTab(username);
+        tab.setOnCloseHandler(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                int currentIndex = tabIndex.indexOf(username);
+                tabIndex.remove(currentIndex);
+                tabs.removeTabAt(currentIndex);
+                mapComponent.remove(username);
+                return null;
+            }
+        });
+        tabs.setTabComponentAt(newIndex, tab);
+        tabs.setSelectedIndex(newIndex);
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTabbedPane tabs;
     // End of variables declaration//GEN-END:variables

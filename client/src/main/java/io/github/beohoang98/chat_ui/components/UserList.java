@@ -9,11 +9,10 @@ import com.google.common.eventbus.Subscribe;
 import io.github.beohoang98.chat_ui.App;
 import io.github.beohoang98.chat_ui.events.ChatChooseUserEvent;
 import io.github.beohoang98.chat_ui.events.OnlineUserEvent;
-import io.github.beohoang98.chat_ui.services.SocketService;
+import io.github.beohoang98.chat_ui.store.OnlineUsersStore;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -34,6 +33,7 @@ public class UserList extends JList<String> implements AncestorListener {
         setCellRenderer(new UserCellRenderer());
         setModel(model);
         addAncestorListener(this);
+        addMouseListener(new ClickHandler());
     }
 
     @Subscribe
@@ -59,10 +59,9 @@ public class UserList extends JList<String> implements AncestorListener {
     @Override
     public void ancestorAdded(AncestorEvent ae) {
         App.eventBus.register(this);
-        try {
-            SocketService.instance.send("GET_ONLINE", "_");
-        } catch (IOException e) {
-            e.printStackTrace();
+        model.clear();
+        for (String u : OnlineUsersStore.instance.getUsers()) {
+            model.addElement(u);
         }
     }
 

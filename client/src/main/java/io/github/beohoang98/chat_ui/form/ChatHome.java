@@ -7,6 +7,7 @@ package io.github.beohoang98.chat_ui.form;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
 import io.github.beohoang98.chat_ui.App;
+import io.github.beohoang98.chat_ui.components.ChatContainer;
 import io.github.beohoang98.chat_ui.components.ConversationList;
 import io.github.beohoang98.chat_ui.components.UserList;
 import java.awt.BorderLayout;
@@ -98,17 +99,8 @@ public class ChatHome extends javax.swing.JFrame {
 
         getContentPane().add(sidebar, java.awt.BorderLayout.WEST);
 
-        javax.swing.GroupLayout mainLayout = new javax.swing.GroupLayout(main);
-        main.setLayout(mainLayout);
-        mainLayout.setHorizontalGroup(
-            mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 603, Short.MAX_VALUE)
-        );
-        mainLayout.setVerticalGroup(
-            mainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 537, Short.MAX_VALUE)
-        );
-
+        main.setLayout(new java.awt.BorderLayout());
+        main.add(new ChatContainer(), java.awt.BorderLayout.CENTER);
         getContentPane().add(main, java.awt.BorderLayout.CENTER);
 
         pack();

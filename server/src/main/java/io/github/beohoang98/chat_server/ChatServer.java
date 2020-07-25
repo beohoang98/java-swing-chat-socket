@@ -10,8 +10,10 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.logging.log4j.LogManager;
 
 public class ChatServer extends ServerSocket {
+
     public final Map<String, Socket> clients = new ConcurrentHashMap<>();
 
     public ChatServer(int port, int conLimit, String address) throws IOException {
@@ -24,7 +26,7 @@ public class ChatServer extends ServerSocket {
             System.out.printf("New client connected %s:%d", newClient
                 .getInetAddress(), newClient.getPort());
             ClientHandler handler = new ClientHandler(newClient,
-                                                      this);
+                this);
             handler.setOnLoggedHandler((User user) -> {
                 clients.put(user.getUsername(), newClient);
                 this.emit("ONLINE", new ArrayList<>(clients.keySet()));
@@ -33,12 +35,12 @@ public class ChatServer extends ServerSocket {
                 clients.remove(user.getUsername());
                 this.emit("ONLINE", new ArrayList<>(clients.keySet()));
             });
-            
-            Thread thread = new Thread(handler);
-            thread.start();
+
+            handler.start();
+            LogManager.getRootLogger().info("Threads: " + Thread.activeCount());
         }
     }
-    
+
     public void emit(String command, Object data) {
         for (Socket client : clients.values()) {
             SendJSON.ins.send(client, command, data);

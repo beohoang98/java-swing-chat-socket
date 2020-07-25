@@ -24,7 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-public class ClientHandler implements Runnable {
+public class ClientHandler extends Thread {
 
     static Logger logger = LogManager.getRootLogger();
 
@@ -40,6 +40,7 @@ public class ClientHandler implements Runnable {
 
     public ClientHandler(@NotNull final Socket socket,
         final ChatServer server) throws IOException {
+        super();
         this.socket = socket;
         this.isAuthorized = false;
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
@@ -49,11 +50,11 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        while (!socket.isClosed() && socket.isConnected()) {
+        while (!socket.isClosed() && !this.isInterrupted()) {
             try {
                 String line = reader.readLine();
                 if (line == null) {
-                    continue;
+                    break;
                 }
                 Pattern pattern = Pattern.compile("([\\w-]+)\\s?(.*)?", Pattern.UNICODE_CASE);
                 Matcher m = pattern.matcher(line);
@@ -68,12 +69,13 @@ public class ClientHandler implements Runnable {
                 }
             } catch (IOException ioException) {
                 logger.error(ioException.getMessage());
+                break;
             } catch (Exception e) {
                 SendJSON.ins.send(writer, "ERROR", e.getMessage());
             }
         }
         try {
-            logger.info("Close client " + socket.getInetAddress().toString());
+            logger.info("Close client " + socket.getRemoteSocketAddress().toString());
             if (!socket.isClosed()) {
                 socket.close();
             }
@@ -84,6 +86,7 @@ public class ClientHandler implements Runnable {
             logger.error(ioException.getMessage());
             ioException.printStackTrace();
         }
+        this.interrupt();
     }
 
     void handleInput(@NotNull String command, String dataStr) throws JsonSyntaxException, IOException, Exception {
@@ -129,8 +132,9 @@ public class ClientHandler implements Runnable {
                 return;
             }
             case "GET_MESSAGE": {
-                String toUsername = dataStr;
+                String toUsername = gson.fromJson(dataStr, String.class);
                 List<MessageEntity> msgList = MessageService.instance.list(user.getUsername(), toUsername);
+                logger.debug("MESSAGE_LIST_COUNT: " + msgList.size());
                 SendJSON.ins.send(writer, "MESSAGE_LIST", new GetMessageResponse(toUsername, msgList));
             }
             case "GET_ONLINE": {

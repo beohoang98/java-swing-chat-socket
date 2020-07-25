@@ -19,6 +19,8 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -26,6 +28,7 @@ import javax.swing.event.AncestorListener;
  */
 public class UserList extends JList<String> implements AncestorListener {
 
+    Logger logger = LogManager.getRootLogger();
     DefaultListModel<String> model = new DefaultListModel<>();
 
     public UserList() {
@@ -73,18 +76,24 @@ public class UserList extends JList<String> implements AncestorListener {
     @Override
     public void ancestorMoved(AncestorEvent ae) {
     }
-    
+
     public class ClickHandler extends MouseAdapter {
 
         @Override
-        public void mouseClicked(MouseEvent me) {
+        public void mousePressed(MouseEvent me) {
             int index = UserList.this.getSelectedIndex();
-            if (index < 0) return;
-            
+            if (index < 0) {
+                return;
+            }
+
             String username = model.elementAt(index);
-            if (username == null) return;
-            
+            if (username == null) {
+                return;
+            }
+
+            logger.info("Click on " + username + "-" + index);
             App.eventBus.post(new ChatChooseUserEvent(username));
         }
+
     }
 }

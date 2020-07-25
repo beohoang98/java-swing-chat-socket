@@ -15,14 +15,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author noobcoder
  */
 public class ChatContainer extends javax.swing.JPanel {
-
+    Logger logger = LogManager.getRootLogger();
     List<String> tabIndex = new ArrayList<>();
     Map<String, ChatContent> mapComponent = new HashMap<>();
 
@@ -73,8 +74,14 @@ public class ChatContainer extends javax.swing.JPanel {
     }//GEN-LAST:event_formAncestorRemoved
 
     private void tabsStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_tabsStateChanged
-        ClosableTab tab = (ClosableTab) tabs.getTabComponentAt(tabs.getSelectedIndex());
-        tab.setHighlight(false);
+        int index = tabs.getSelectedIndex();
+        if (index < 0) return;
+        try {
+            ClosableTab tab = (ClosableTab) tabs.getTabComponentAt(index);
+            tab.setHighlight(false);   
+        } catch (ClassCastException | NullPointerException ex) {
+            // this is normal behavior, skip
+        }
     }//GEN-LAST:event_tabsStateChanged
 
     @Subscribe
@@ -106,7 +113,9 @@ public class ChatContainer extends javax.swing.JPanel {
     @Subscribe
     void onChooseUserChat(ChatChooseUserEvent event) {
         String username = event.getUsername();
-        System.out.println("Switch to " + username);
+        if (username == null) {
+            return;
+        }
         int existIndex = tabIndex.indexOf(username);
 
         if (existIndex >= 0) {
@@ -117,6 +126,7 @@ public class ChatContainer extends javax.swing.JPanel {
     }
 
     void addTabChat(final String username) {
+        logger.info("Open tab: " + username);
         ChatContent chatContent = new ChatContent(username);
         mapComponent.put(username, chatContent);
         tabs.addTab(username, chatContent);
@@ -124,17 +134,16 @@ public class ChatContainer extends javax.swing.JPanel {
 
         final int newIndex = tabIndex.size() - 1;
         ClosableTab tab = new ClosableTab(username);
-        tab.setOnCloseHandler(new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                int currentIndex = tabIndex.indexOf(username);
-                tabIndex.remove(currentIndex);
-                tabs.removeTabAt(currentIndex);
-                mapComponent.remove(username);
-                return null;
-            }
-        });
+        
         tabs.setTabComponentAt(newIndex, tab);
+        
+        tab.setOnCloseHandler(() -> {
+            int currentIndex = tabIndex.indexOf(username);
+            tabIndex.remove(currentIndex);
+            tabs.removeTabAt(currentIndex);
+            mapComponent.remove(username);
+            return null;
+        });
         tabs.setSelectedIndex(newIndex);
     }
 

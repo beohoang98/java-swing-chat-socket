@@ -6,6 +6,10 @@
 package io.github.beohoang98.chat_ui.services;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializer;
 import io.github.beohoang98.chat_ui.App;
 import io.github.beohoang98.chat_ui.events.ErrorEvent;
 import io.github.beohoang98.chat_ui.events.GetMessageResponseEvent;
@@ -21,16 +25,19 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -38,7 +45,11 @@ import javax.annotation.Nullable;
  */
 public class SocketService {
 
-    public Logger logger = Logger.getLogger(SocketService.class.getName());
+    public Logger logger = LogManager.getRootLogger();
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(Timestamp.class, (JsonDeserializer<Timestamp>) (json, t, ctx) -> Timestamp.from(Instant.ofEpochMilli(json.getAsLong())))
+        .registerTypeAdapter(Timestamp.class, (JsonSerializer<Timestamp>) (timestamp, t, ctx) -> new JsonPrimitive(timestamp.getTime()))
+        .create();
 
     public static SocketService instance = new SocketService();
     Socket socket;
@@ -81,8 +92,7 @@ public class SocketService {
     }
 
     public void send(String event, Object data) throws IOException {
-        Gson gson = new Gson();
-        System.out.println("SEND: " + event + " " + data);
+        logger.debug("SEND: " + event + " " + data);
         if (dataOutputStream != null) {
             dataOutputStream.println(event + " " + gson.toJson(data));
             dataOutputStream.flush();
@@ -114,8 +124,7 @@ public class SocketService {
     }
 
     void handleData(@Nonnull String event, @Nullable String data) {
-        Gson gson = new Gson();
-        System.out.printf("Event %s: %s\n", event, data);
+        logger.debug(String.format("Event %s: %s\n", event, data));
         switch (event) {
             case "LOGGED": {
                 UserModel userModel = gson.fromJson(data, UserModel.class);

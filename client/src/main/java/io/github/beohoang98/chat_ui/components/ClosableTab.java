@@ -43,6 +43,16 @@ public class ClosableTab extends javax.swing.JPanel {
 
         setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         setOpaque(false);
+        addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                formFocusGained(evt);
+            }
+        });
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                formMousePressed(evt);
+            }
+        });
         setLayout(new java.awt.GridBagLayout());
 
         title.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -83,6 +93,14 @@ public class ClosableTab extends javax.swing.JPanel {
             }
         }
     }//GEN-LAST:event_closeBtnActionPerformed
+
+    private void formFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_formFocusGained
+        setHighlight(false);
+    }//GEN-LAST:event_formFocusGained
+
+    private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
+        setHighlight(false);
+    }//GEN-LAST:event_formMousePressed
     
     public void setOnCloseHandler(Callable<Object> onCloseHandler) {
         this.onCloseHandler = onCloseHandler;

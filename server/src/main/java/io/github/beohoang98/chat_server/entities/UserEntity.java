@@ -18,11 +18,11 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "users")
-@Getter
 @Setter
+@Getter
 public class UserEntity extends BaseEntity implements Serializable {
 
     @Id
     String username;
-    String password;
+    transient String password;
 }

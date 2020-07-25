@@ -49,9 +49,9 @@ public class MessageService {
         try (Session session = HBUtils.instance.open()) {
             return session.createQuery("FROM "
                 + MessageEntity.class.getSimpleName()
-                + " WHERE ((owner_username = :fromUsername AND to_username = :toUsername)"
-                + " OR (owner_username = :toUsername AND to_username = :fromUsername))"
-                + " ORDER BY created_at DESC", MessageEntity.class)
+                + " WHERE ((ownerUsername = :fromUsername AND toUsername = :toUsername)"
+                + " OR (ownerUsername = :toUsername AND toUsername = :fromUsername))"
+                + " ORDER BY createdAt DESC", MessageEntity.class)
                 .setParameter("fromUsername", fromUsername)
                 .setParameter("toUsername", toUsername)
                 .setFirstResult(from)
@@ -71,18 +71,25 @@ public class MessageService {
         return this.list(fromUsername, toUsername, from, 20);
     }
 
-    public List<MessageEntity> listDirectConversation(String fromUsername, String toUsername, int from, int limit) {
+    public List<MessageEntity> listDirectConversation(String fromUsername, int from, int limit) {
         try (Session session = HBUtils.instance.open()) {
             return session.createQuery("FROM "
                 + MessageEntity.class.getSimpleName()
-                + " WHERE ((owner_username = :fromUsername AND to_username = :toUsername)"
-                + " OR (owner_username = :toUsername AND to_username = :fromUsername))"
-                + " ORDER BY created_at DESC")
+                + " WHERE id IN ("
+                + "     SELECT m.id FROM MessageEntity as m"
+                + "         WHERE ((m.ownerUsername = :fromUsername)"
+                + "         OR (m.toUsername = :fromUsername))"
+                + "         GROUP BY (m.ownerUsername)"
+                + "         SORT BY m.createdAt DESC"
+                + ")"
+                + " ORDER BY createdAt DESC")
                 .setParameter("fromUsername", fromUsername)
-                .setParameter("toUsername", toUsername)
                 .setFirstResult(from)
                 .setMaxResults(limit)
-                .getResultList();
+                .list();
+        } catch (Exception e) {
+            logger.error(e);
+            throw e;
         }
     }
 }

@@ -1,6 +1,5 @@
 package io.github.beohoang98.chat_ui.models;
 
-import java.sql.Timestamp;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,7 +28,7 @@ public class MessageModel {
 
     @Setter
     String toUsername;
-    
-    Timestamp createdAt;
-    Timestamp updatedAt;
+
+    long createdAt;
+    long updatedAt;
 }

@@ -60,3 +60,7 @@ Tuy nhiên ta vẫn có thể build và run được bằng Gradle.
 # client
 ./gradlew :client:shadowJar
 ```
+
+## 3 Demo
+
+[Youtube](https://youtu.be/EtJRlz9ulB8)

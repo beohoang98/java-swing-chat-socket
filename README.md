@@ -32,6 +32,10 @@ java -jar client-x.y.z-SNAPSHOT-all.jar
 
 ## 2. Cài đặt và chạy từ mã nguồn
 
+Project được phát triển và build bằng Netbeans IDE.
+
+Tuy nhiên ta vẫn có thể build và run được bằng Gradle.
+
 **2.1 Yêu cầu:**
 
 - JDK 1.8+

@@ -8,7 +8,6 @@ package io.github.beohoang98.chat_ui.form;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import io.github.beohoang98.chat_ui.App;
 import io.github.beohoang98.chat_ui.components.ChatContainer;
-import io.github.beohoang98.chat_ui.components.ConversationList;
 import io.github.beohoang98.chat_ui.components.UserList;
 import java.awt.BorderLayout;
 import javax.swing.UIManager;
@@ -42,7 +41,6 @@ public class ChatHome extends javax.swing.JFrame {
         usernameField = new javax.swing.JTextField();
         sidebarTabsWrapper = new javax.swing.JPanel();
         sidebarTabs = new javax.swing.JTabbedPane();
-        conversationPanel = new javax.swing.JPanel();
         onlinePanel = new javax.swing.JTabbedPane();
         main = new javax.swing.JPanel();
 
@@ -71,22 +69,6 @@ public class ChatHome extends javax.swing.JFrame {
         sidebarTabsWrapper.setLayout(new java.awt.BorderLayout());
 
         sidebarTabs.setToolTipText("");
-
-        conversationPanel.setLayout(new BorderLayout());
-        conversationPanel.add(new ConversationList(), BorderLayout.CENTER);
-
-        javax.swing.GroupLayout conversationPanelLayout = new javax.swing.GroupLayout(conversationPanel);
-        conversationPanel.setLayout(conversationPanelLayout);
-        conversationPanelLayout.setHorizontalGroup(
-            conversationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 288, Short.MAX_VALUE)
-        );
-        conversationPanelLayout.setVerticalGroup(
-            conversationPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 427, Short.MAX_VALUE)
-        );
-
-        sidebarTabs.addTab("Conversations", conversationPanel);
 
         onlinePanel.setLayout(new BorderLayout());
         onlinePanel.add(new UserList(), BorderLayout.CENTER);
@@ -130,7 +112,6 @@ public class ChatHome extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel accountSection;
-    private javax.swing.JPanel conversationPanel;
     private javax.swing.JPanel main;
     private javax.swing.JTabbedPane onlinePanel;
     private javax.swing.JPanel sidebar;

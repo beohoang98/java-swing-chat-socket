@@ -97,11 +97,16 @@ public class ClientHandler extends Thread {
         switch (command) {
             case "REGISTER": {
                 Auth auth = gson.fromJson(dataStr, Auth.class);
-                User user = UserService.instance.register(auth.getUsername(), auth.getPassword());
-                if (user == null) {
+                User newUser = UserService.instance.register(auth.getUsername(), auth.getPassword());
+                if (newUser == null) {
                     throw new Exception("Cannot register");
                 }
-                SendJSON.ins.send(writer, "REGISTER_SUCCESS", user);
+                user = newUser;
+                isAuthorized = true;
+                SendJSON.ins.send(writer, "REGISTER_SUCCESS", newUser);
+                if (onLoggedHandler != null) {
+                    onLoggedHandler.onLogged(newUser);
+                }
                 return;
             }
             case "LOGIN": {

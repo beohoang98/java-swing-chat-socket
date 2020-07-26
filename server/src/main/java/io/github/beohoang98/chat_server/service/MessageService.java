@@ -71,25 +71,26 @@ public class MessageService {
         return this.list(fromUsername, toUsername, from, 20);
     }
 
-    public List<MessageEntity> listDirectConversation(String fromUsername, int from, int limit) {
-        try (Session session = HBUtils.instance.open()) {
-            return session.createQuery("FROM "
-                + MessageEntity.class.getSimpleName()
-                + " WHERE id IN ("
-                + "     SELECT m.id FROM MessageEntity as m"
-                + "         WHERE ((m.ownerUsername = :fromUsername)"
-                + "         OR (m.toUsername = :fromUsername))"
-                + "         GROUP BY (m.ownerUsername)"
-                + "         SORT BY m.createdAt DESC"
-                + ")"
-                + " ORDER BY createdAt DESC")
-                .setParameter("fromUsername", fromUsername)
-                .setFirstResult(from)
-                .setMaxResults(limit)
-                .list();
-        } catch (Exception e) {
-            logger.error(e);
-            throw e;
-        }
-    }
+//    public List<MessageEntity> listDirectConversation(String fromUsername, int from, int limit) {
+//        try (Session session = HBUtils.instance.open()) {
+//            return session.createQuery("FROM "
+//                + MessageEntity.class.getSimpleName()
+//                + " WHERE id IN ("
+//                + "     SELECT LEAST(m.ownerUsername) as u1, GREATEST(m.toUsername) as u2"
+//                + "         FROM MessageEntity as m"
+//                + "         WHERE ((m.ownerUsername = :fromUsername)"
+//                + "         OR (m.toUsername = :fromUsername))"
+//                + "         GROUP BY (m.ownerUsername)"
+//                + "         SORT BY m.createdAt DESC"
+//                + ")"
+//                + " ORDER BY createdAt DESC")
+//                .setParameter("fromUsername", fromUsername)
+//                .setFirstResult(from)
+//                .setMaxResults(limit)
+//                .list();
+//        } catch (Exception e) {
+//            logger.error(e);
+//            throw e;
+//        }
+//    }
 }

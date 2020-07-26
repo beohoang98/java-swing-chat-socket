@@ -156,3 +156,4 @@ gradle-app.setting
 *.mv.db
 *.trace.db
 *.log
+!jar/*.jar
